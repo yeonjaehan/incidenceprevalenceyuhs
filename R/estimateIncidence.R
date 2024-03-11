@@ -207,7 +207,7 @@ estimateIncidence <- function(cdm,
       .data$outcome_cohort_id
     ) %>%
     dbplyr::window_order(.data$outcome_start_date) %>%
-    dplyr::mutate(index = rank()) %>%
+    dplyr::mutate(index1 = rank()) %>%
     dplyr::ungroup()
 
   outcome <- outcome %>%
@@ -223,15 +223,15 @@ estimateIncidence <- function(cdm,
     dplyr::select(-"outcome_end_date") %>%
     dplyr::full_join(
       outcome %>%
-        dplyr::mutate(index = .data$index + 1) %>%
+        dplyr::mutate(index2 = .data$index1 + 1) %>%
         dplyr::rename("outcome_prev_end_date" = "outcome_end_date") %>%
         dplyr::select(-"outcome_start_date"),
       by = c(
         "subject_id", "cohort_start_date",
-        "cohort_end_date", "outcome_cohort_id", "index"
+        "cohort_end_date", "outcome_cohort_id", "index1"
       )
     ) %>%
-    dplyr::select(-"index")
+    dplyr::select(-"index1")
 
   outcome <- outcome %>%
     CDMConnector::computeQuery(
